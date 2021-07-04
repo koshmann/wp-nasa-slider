@@ -1,0 +1,44 @@
+<?php
+
+/**
+ * Fired when the plugin is activated to get initial 5pcs gallery.
+ *
+ * @link       https://github.com/koshmann
+ * @since      1.0.0
+ *
+ * @package    nasa_slider
+ */
+
+function get_first_data_for_slider(){
+
+	$published_slides = wp_count_posts('post-nasa-gallery')->publish;
+	$slides_to_get = 4 - $published_slides;
+
+	if ($slides_to_get >= 0) {
+	
+		$response = wp_remote_get('https://api.nasa.gov/planetary/apod?api_key=2vIBTLz1ZZZ3iTj0nQo5NRxo5om3ySJbIdsnOFen&count=' . $slides_to_get);
+		$response = json_encode($response);
+		$data = json_decode($response);
+		$body = json_decode($data->body);
+
+		require_once(ABSPATH . 'wp-admin/includes/media.php');
+		require_once(ABSPATH . 'wp-admin/includes/file.php');
+		require_once(ABSPATH . 'wp-admin/includes/image.php');
+
+		foreach ($body as $slide_data) {
+
+			$new_slide = array(
+				'post_type'     => 'post-nasa-gallery',
+				'post_title'    => $slide_data->date,
+				'post_status'   => 'publish',
+				'post_author'   => 1,
+			);
+			
+			$new_slide_ID = wp_insert_post( $new_slide );
+
+			$new_slide_img = media_sideload_image( $slide_data->url, $new_slide_ID, null, 'id' );
+			
+			set_post_thumbnail( $new_slide_ID, $new_slide_img );
+		}
+	} 
+}
