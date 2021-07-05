@@ -40,4 +40,3 @@ register_deactivation_hook( __FILE__, 'remove_schedule_get_everyday_image' );
 
 
 require_once plugin_dir_path( __FILE__ ) . 'inc/slider-shortcode.php';
-

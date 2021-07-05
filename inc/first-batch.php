@@ -11,12 +11,12 @@
 
 function get_first_data_for_slider(){
 
-	$published_slides = wp_count_posts('post-nasa-gallery')->publish;
-	$slides_to_get = 4 - $published_slides;
+	if (!get_option( 'nasa_slider_activated' )) {
 
-	if ($slides_to_get >= 0) {
+		$today = date("Y-m-d");  
+		$five_day_ago = date("Y-m-d",  strtotime('-5 days'));
 	
-		$response = wp_remote_get('https://api.nasa.gov/planetary/apod?api_key=2vIBTLz1ZZZ3iTj0nQo5NRxo5om3ySJbIdsnOFen&count=' . $slides_to_get);
+		$response = wp_remote_get('https://api.nasa.gov/planetary/apod?api_key=2vIBTLz1ZZZ3iTj0nQo5NRxo5om3ySJbIdsnOFen&start_date=' . $five_day_ago . '&end_date=' . $today);
 		$response = json_encode($response);
 		$data = json_decode($response);
 		$body = json_decode($data->body);
@@ -40,5 +40,7 @@ function get_first_data_for_slider(){
 			
 			set_post_thumbnail( $new_slide_ID, $new_slide_img );
 		}
-	} 
+	}
+
+	add_option( 'nasa_slider_activated', time() ); 
 }

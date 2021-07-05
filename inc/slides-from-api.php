@@ -25,6 +25,15 @@ function update_data_from_external_api(){
 	$data = json_decode($response); 
 	$body = json_decode($data->body);
 
+	//if post with this title exists, get random image
+	require_once ABSPATH . 'wp-admin/includes/post.php';
+	if (post_exists( $data->body->date, '', '', 'post-nasa-gallery' )) {
+		$response = wp_remote_get('https://api.nasa.gov/planetary/apod?api_key=2vIBTLz1ZZZ3iTj0nQo5NRxo5om3ySJbIdsnOFen&count=1'); 
+		$response = json_encode($response); 
+		$data = json_decode($response); 
+		$body = json_decode($data->body);
+		$body = reset($body);
+	}
 
 	$new_slide = array(
 		'post_type'     => 'post-nasa-gallery',
